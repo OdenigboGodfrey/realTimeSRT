@@ -18,7 +18,7 @@ from utils import extract_text
 import threading
 
 # MODEL_PATH = "/home/back/Documents/src/python/localSRT-RT/bin/shared/vosk-model-en-us-0.22-lgraph"
-MODEL_PATH = "/home/back/Documents/src/python/localSRT-RT/bin/shared/vosk-model-small-en-us-0.15"
+MODEL_PATH = "./bin/shared/vosk-model-small-en-us-0.15"
 
 stop_event = threading.Event()
 

@@ -5,10 +5,12 @@ import numpy as np
 import platform
 import threading
 import os
-import fcntl
 import time
+from ffmpeg_binary_manager import get_ffmpeg_binary
 
 stop_event = threading.Event()
+
+FFMPEG = get_ffmpeg_binary("ffmpeg")
 
 
 class AudioSource:
@@ -51,6 +53,7 @@ class AudioSource:
     # MAKE FFmpeg NON-BLOCKING
     # ---------------------------------------
     def __make_nonblocking(self, process):
+        import fcntl
         fd = process.stdout.fileno()
         flags = fcntl.fcntl(fd, fcntl.F_GETFL)
         fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
@@ -160,7 +163,7 @@ class AudioSource:
     # ---------------------------------------
     def _system_stream_linux(self):
         command = [
-            "ffmpeg",
+           FFMPEG,
             "-loglevel", "quiet",
             "-f", "pulse",
             "-i", "default",
@@ -192,7 +195,7 @@ class AudioSource:
             blocksize=4000,
             dtype="int16",
             channels=1,
-            extra_settings=sd.WasapiSettings(loopback=True),
+            extra_settings=sd.WasapiSettings(),
             callback=self._mic_callback
         ):
             while not stop_event.is_set():
@@ -206,7 +209,7 @@ class AudioSource:
     # ---------------------------------------
     def _system_stream_macos(self):
         command = [
-            "ffmpeg",
+            FFMPEG,
             "-loglevel", "quiet",
             "-f", "avfoundation",
             "-i", ":0",
@@ -234,7 +237,7 @@ class AudioSource:
     # ---------------------------------------
     def _file_stream(self):
         command = [
-            "ffmpeg",
+            FFMPEG,
             "-loglevel", "quiet",
             "-i", self.source,
             "-ar", str(self.sample_rate),
