@@ -81,7 +81,7 @@ class Overlay(QtWidgets.QWidget):
             return
 
         # Keep only the latest part that fits
-        max_chars = 140
+        max_chars = 200
 
         if len(text) > max_chars:
             text = "..." + text[-max_chars:]
