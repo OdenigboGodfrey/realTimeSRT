@@ -35,6 +35,7 @@ class DraggableLabel(QtWidgets.QLabel):
 class Overlay(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+
         self.setWindowFlags(
             QtCore.Qt.FramelessWindowHint |
             QtCore.Qt.WindowStaysOnTopHint |
@@ -42,6 +43,7 @@ class Overlay(QtWidgets.QWidget):
         )
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
+        # --- main label ---
         self.label = DraggableLabel("", self)
         self.label.setWordWrap(True)
         self.label.setStyleSheet("""
@@ -53,9 +55,39 @@ class Overlay(QtWidgets.QWidget):
         """)
         self.label.set_window(self)
 
+        # --- close button ---
+        self.close_btn = QtWidgets.QPushButton("✕")
+        self.close_btn.setFixedSize(28, 28)
+        self.close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 80, 80, 180);
+                color: white;
+                border-radius: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 80, 80, 240);
+            }
+        """)
+
+        self.close_btn.clicked.connect(self.request_shutdown)
+
+        # --- layout wrapper ---
+        container = QtWidgets.QWidget(self)
+        container_layout = QtWidgets.QVBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.addWidget(self.label)
+
+        # overlay button on top-right
+        self.close_btn.setParent(container)
+        self.close_btn.move(container.width() - 35, 5)
+
+        container_layout.addWidget(self.label)
+
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.label)
+        layout.addWidget(container)
+
         self.setLayout(layout)
 
         self.setFixedSize(900, 170)
@@ -66,11 +98,16 @@ class Overlay(QtWidgets.QWidget):
             screen.height() - 180
         )
 
-        # 2. Add the heartbeat timer to periodically return control to Python
-        self.interrupt_timer = QtCore.QTimer(self)
-        self.interrupt_timer.setInterval(500)  # Check every 500ms
-        self.interrupt_timer.timeout.connect(lambda: None)  # Dummy function, no action
-        self.interrupt_timer.start()
+        # keep button positioned on resize
+        self.container = container
+        self.container.resizeEvent = self._reposition_close_button
+
+    def _reposition_close_button(self, event):
+        self.close_btn.move(self.container.width() - 35, 5)
+
+    def request_shutdown(self):
+        # emit a signal-like callback via parent traversal or global hook
+        QtWidgets.QApplication.quit()
 
     def set_text(self, text):
         print(f"text: {text}")
