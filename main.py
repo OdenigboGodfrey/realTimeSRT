@@ -12,6 +12,7 @@ from PyQt5 import QtWidgets, QtCore
 
 from audio import AudioSource
 from transcriber import Transcriber
+from transcriber_whisper import FasterWhisperTranscriber
 from overlay import Overlay
 from srt import SRTWriter
 from utils import extract_text
@@ -34,19 +35,25 @@ class Worker(QtCore.QThread):
         self.seg_start = 0
 
     def run(self):
-        for chunk in self.audio.stream():
+        try:
+            for chunk in self.audio.stream():
 
-            if self.isInterruptionRequested() or stop_event.is_set():
-                break
+                if self.isInterruptionRequested() or stop_event.is_set():
+                    break
 
-            print("audio active")
+                print("audio active")
 
-            partial = self.transcriber.process(chunk)
+                partial = self.transcriber.process(chunk)
 
-            txt = partial.get("partial", "")
+                txt = partial.get("partial", "")
 
-            if txt:
-                self.signal.emit(txt)
+                if txt:
+                    self.signal.emit(txt)
+        except Exception as e:
+            import traceback
+            print("WORKER CRASHED:")
+            print(e)
+            traceback.print_exc()
 
 def main():
 
@@ -63,6 +70,7 @@ def main():
 
     audio = AudioSource(args.source)
     transcriber = Transcriber(MODEL_PATH)
+    # transcriber = FasterWhisperTranscriber()
 
     writer = SRTWriter(args.srt) if args.srt else None
 
