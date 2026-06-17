@@ -1,0 +1,24 @@
+architecture:
+
+Linux:
+    PulseAudio/PipeWire monitor
+        ↓
+    16kHz mono PCM
+        ↓
+    Vosk
+
+
+Windows:
+    WASAPI loopback via soundcard
+        ↓
+    16kHz mono PCM
+        ↓
+    Vosk
+
+
+macOS:
+    avfoundation
+        ↓
+    16kHz mono PCM
+        ↓
+    Vosk
