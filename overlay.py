@@ -58,7 +58,7 @@ class Overlay(QtWidgets.QWidget):
         layout.addWidget(self.label)
         self.setLayout(layout)
 
-        self.setFixedSize(900, 120)
+        self.setFixedSize(900, 170)
 
         screen = QtWidgets.QApplication.primaryScreen().geometry()
         self.move(
@@ -74,4 +74,16 @@ class Overlay(QtWidgets.QWidget):
 
     def set_text(self, text):
         print(f"text: {text}")
-        self.label.setText(text.strip())
+
+        text = text.strip()
+
+        if not text:
+            return
+
+        # Keep only the latest part that fits
+        max_chars = 140
+
+        if len(text) > max_chars:
+            text = "..." + text[-max_chars:]
+
+        self.label.setText(text)
