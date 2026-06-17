@@ -1,4 +1,8 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
+import signal
+
+# 1. Allow Python's default signal handler to catch Ctrl+C (SIGINT)
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 class DraggableLabel(QtWidgets.QLabel):
@@ -61,6 +65,12 @@ class Overlay(QtWidgets.QWidget):
             (screen.width() - self.width()) // 2,
             screen.height() - 180
         )
+
+        # 2. Add the heartbeat timer to periodically return control to Python
+        self.interrupt_timer = QtCore.QTimer(self)
+        self.interrupt_timer.setInterval(500)  # Check every 500ms
+        self.interrupt_timer.timeout.connect(lambda: None)  # Dummy function, no action
+        self.interrupt_timer.start()
 
     def set_text(self, text):
         print(f"text: {text}")
