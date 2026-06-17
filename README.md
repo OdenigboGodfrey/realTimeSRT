@@ -1,5 +1,3 @@
-Here is a README draft for your project based on what you built (real-time SRT/transcription overlay with Vosk + system audio capture):
-
 ```markdown
 # RealTimeSRT
 
