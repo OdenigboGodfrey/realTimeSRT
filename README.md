@@ -299,30 +299,6 @@ For better accuracy use a larger model.
 
 ---
 
-# Troubleshooting
-
-## No transcription
-
-Check:
-
-* Audio source is correct
-* Microphone permissions
-* System audio device availability
-
----
-
-## Windows: No system audio
-
-Run:
-
-```bash
-python main.py --source system
-```
-
-If no device appears, enable Stereo Mix or install a virtual audio device.
-
----
-
 ## Overlay text overflow
 
 The overlay intentionally keeps the newest transcription visible and limits the display area.
