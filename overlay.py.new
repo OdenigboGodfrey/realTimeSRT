@@ -1,0 +1,41 @@
+from PyQt5 import QtWidgets, QtCore
+
+
+class Overlay(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowFlags(
+            QtCore.Qt.FramelessWindowHint |
+            QtCore.Qt.WindowStaysOnTopHint |
+            QtCore.Qt.Tool
+        )
+
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+
+        self.label = QtWidgets.QLabel("", self)
+        self.label.setWordWrap(True)
+
+        self.label.setStyleSheet("""
+            color: white;
+            font-size: 26px;
+            background-color: rgba(0, 0, 0, 160);
+            padding: 12px;
+            border-radius: 8px;
+        """)
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.label)
+        self.setLayout(layout)
+
+        self.resize(900, 120)
+
+        # bottom center
+        screen = QtWidgets.QApplication.primaryScreen().geometry()
+        self.move(
+            (screen.width() - self.width()) // 2,
+            screen.height() - 180
+        )
+
+    def set_text(self, text):
+        self.label.setText(text.strip())

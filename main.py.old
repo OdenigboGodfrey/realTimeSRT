@@ -1,0 +1,76 @@
+import sys
+import argparse
+from PyQt5 import QtWidgets, QtCore
+
+from audio import AudioSource
+from transcriber import Transcriber
+from overlay import Overlay
+from srt import SRTWriter
+from utils import extract_text
+
+MODEL_PATH = "/home/back/Documents/src/python/localSRT-RT/bin/shared/vosk-model-en-us-0.22-lgraph"
+
+
+class Worker(QtCore.QThread):
+    signal = QtCore.pyqtSignal(str)
+
+    def __init__(self, audio, transcriber, writer=None):
+        super().__init__()
+        self.audio = audio
+        self.transcriber = transcriber
+        self.writer = writer
+
+        self.seg_start = 0
+
+    def run(self):
+        for chunk in self.audio.stream():
+            typ, res = self.transcriber.process(chunk)
+
+            if typ == "partial":
+                txt = res.get("partial", "")
+                self.signal.emit(txt)
+
+            elif typ == "final":
+                text = extract_text(res)
+
+                if not text:
+                    continue
+
+                now = self.transcriber.now()
+
+                self.signal.emit(text)
+
+                if self.writer:
+                    self.writer.write(self.seg_start, now, text)
+
+                self.seg_start = now
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", default="system", help="mic, system OR file path")
+    parser.add_argument("--srt", help="output srt file")
+
+    args = parser.parse_args()
+
+    app = QtWidgets.QApplication(sys.argv)
+
+    overlay = Overlay()
+    overlay.show()
+
+    audio = AudioSource(args.source)
+    audio.source = args.source
+    transcriber = Transcriber(MODEL_PATH)
+
+    writer = SRTWriter(args.srt) if args.srt else None
+
+    worker = Worker(audio, transcriber, writer)
+    worker.signal.connect(overlay.set_text)
+    worker.start()
+
+    sys.exit(app.exec_())
+
+
+print(__name__)
+if __name__ == "__main__":
+    main()
