@@ -190,19 +190,32 @@ class AudioSource:
     # SYSTEM AUDIO - WINDOWS
     # ---------------------------------------
     def _system_stream_windows(self):
-        with sd.RawInputStream(
-            samplerate=self.sample_rate,
-            blocksize=4000,
-            dtype="int16",
-            channels=1,
-            extra_settings=sd.WasapiSettings(),
-            callback=self._mic_callback
-        ):
-            while not stop_event.is_set():
-                try:
-                    yield self.q.get(timeout=0.5)
-                except queue.Empty:
-                    continue
+        command = [
+            FFMPEG,
+            "-loglevel", "quiet",
+            "-f", "wasapi",
+            "-i", "default",
+            "-ac", "1",
+            "-ar", str(self.sample_rate),
+            "-f", "s16le",
+            "-"
+        ]
+
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=0)
+
+        self._make_nonblocking(process)
+
+        while not stop_event.is_set():
+            try:
+                data = process.stdout.read(16000)
+                if data:
+                    yield data
+                else:
+                    time.sleep(0.01)
+            except Exception:
+                time.sleep(0.01)
+
+        self._terminate(process)
 
     # ---------------------------------------
     # SYSTEM AUDIO - MAC
