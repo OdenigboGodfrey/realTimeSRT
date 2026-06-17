@@ -48,40 +48,6 @@ class Worker(QtCore.QThread):
             if txt:
                 self.signal.emit(txt)
 
-    def run_old(self):
-        for chunk in self.audio.stream():
-            # allow clean shutdown
-            if self.isInterruptionRequested() or stop_event.is_set():
-                break
-
-            # is_silent = self.audio.is_silent(chunk)
-            # print(f"is_silent: {is_silent}")
-            # if is_silent:
-            #     pass
-            print("audio active")
-            
-            typ, res = self.transcriber.process(chunk)
-
-            if typ == "partial":
-                txt = res.get("partial", "")
-                self.signal.emit(txt)
-
-            elif typ == "final":
-                text = extract_text(res)
-
-                if not text:
-                    continue
-
-                now = self.transcriber.now()
-
-                self.signal.emit(text)
-
-                if self.writer:
-                    self.writer.write(self.seg_start, now, text)
-
-                self.seg_start = now
-
-
 def main():
 
     parser = argparse.ArgumentParser()
