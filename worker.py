@@ -20,7 +20,7 @@ class Worker(QtCore.QThread):
                 if self.isInterruptionRequested() or self.stop_event.is_set():
                     break
 
-                print("audio active")
+                # print("audio active")
 
                 partial = self.transcriber.process(chunk)
 

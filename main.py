@@ -3,17 +3,16 @@ import platform
 os_platform = platform.system()
 if os_platform.lower() == "windows":
     os.environ["QT_QPA_PLATFORM"] = "windows"
+elif os_platform == "darwin":
+    os.environ["QT_QPA_PLATFORM"] = "cocoa"
 else:
-    os.environ["QT_QPA_PLATFORM"] = "xcb"
+    os.environ["QT_QPA_PLATFORM"] = "xcb" # Linux
 
 import sys
 import argparse
-
 from audio import AudioSource
 from transcriber import Transcriber
-from transcriber_whisper import FasterWhisperTranscriber
-from PyQt5 import QtWidgets, QtCore
-from utils import extract_text
+from PyQt5 import QtWidgets
 from overlay import Overlay
 from srt import SRTWriter
 import threading
@@ -34,7 +33,6 @@ def main():
 
     audio = AudioSource(args.source, stop_event)
     transcriber = Transcriber(MODEL_PATH)
-    # transcriber = FasterWhisperTranscriber()
 
     app = QtWidgets.QApplication(sys.argv)
 

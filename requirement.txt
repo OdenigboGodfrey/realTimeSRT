@@ -3,4 +3,4 @@ sounddevice
 numpy
 PyQt5
 soundcard
-faster_whisper
+# faster_whisper
