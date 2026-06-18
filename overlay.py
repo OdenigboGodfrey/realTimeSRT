@@ -17,7 +17,6 @@ class DraggableLabel(QtWidgets.QLabel):
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            # self._drag_pos = event.globalPos() - self._window.frameGeometry().topLeft()
             self._drag_pos = event.globalPos() - self._window.pos()
             event.accept()
 
@@ -106,7 +105,6 @@ class Overlay(QtWidgets.QWidget):
         self.close_btn.move(self.container.width() - 35, 5)
 
     def request_shutdown(self):
-        # emit a signal-like callback via parent traversal or global hook
         QtWidgets.QApplication.quit()
 
     def set_text(self, text):

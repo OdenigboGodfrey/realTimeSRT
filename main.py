@@ -3,23 +3,22 @@ import platform
 os_platform = platform.system()
 if os_platform.lower() == "windows":
     os.environ["QT_QPA_PLATFORM"] = "windows"
+elif os_platform == "darwin":
+    os.environ["QT_QPA_PLATFORM"] = "cocoa"
 else:
-    os.environ["QT_QPA_PLATFORM"] = "xcb"
+    os.environ["QT_QPA_PLATFORM"] = "xcb" # Linux
 
 import sys
 import argparse
-
 from audio import AudioSource
 from transcriber import Transcriber
-from PyQt5 import QtWidgets, QtCore
-from transcriber_whisper import FasterWhisperTranscriber
-from utils import extract_text
+from PyQt5 import QtWidgets
 from overlay import Overlay
 from srt import SRTWriter
 import threading
 from worker import Worker
 
-# MODEL_PATH = "/home/back/Documents/src/python/localSRT-RT/bin/shared/vosk-model-en-us-0.22-lgraph"
+# MODEL_PATH = "./bin/shared/vosk-model-en-us-0.22-lgraph"
 MODEL_PATH = "./bin/shared/vosk-model-small-en-us-0.15"
 
 stop_event = threading.Event()
@@ -32,14 +31,13 @@ def main():
 
     args = parser.parse_args()
 
+    audio = AudioSource(args.source, stop_event)
+    transcriber = Transcriber(MODEL_PATH)
+
     app = QtWidgets.QApplication(sys.argv)
 
     overlay = Overlay()
     overlay.show()
-
-    audio = AudioSource(args.source, stop_event)
-    transcriber = Transcriber(MODEL_PATH)
-    # transcriber = FasterWhisperTranscriber()
 
     writer = SRTWriter(args.srt) if args.srt else None
 
