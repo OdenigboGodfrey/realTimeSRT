@@ -4,5 +4,4 @@ dist/
 venv/
 file
 .vscode/**
-bin/
 todo
