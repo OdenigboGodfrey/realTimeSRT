@@ -11,15 +11,15 @@ import argparse
 
 from audio import AudioSource
 from transcriber import Transcriber
-from PyQt5 import QtWidgets, QtCore
 from transcriber_whisper import FasterWhisperTranscriber
+from PyQt5 import QtWidgets, QtCore
 from utils import extract_text
 from overlay import Overlay
 from srt import SRTWriter
 import threading
 from worker import Worker
 
-# MODEL_PATH = "/home/back/Documents/src/python/localSRT-RT/bin/shared/vosk-model-en-us-0.22-lgraph"
+# MODEL_PATH = "./bin/shared/vosk-model-en-us-0.22-lgraph"
 MODEL_PATH = "./bin/shared/vosk-model-small-en-us-0.15"
 
 stop_event = threading.Event()
@@ -32,14 +32,14 @@ def main():
 
     args = parser.parse_args()
 
+    audio = AudioSource(args.source, stop_event)
+    transcriber = Transcriber(MODEL_PATH)
+    # transcriber = FasterWhisperTranscriber()
+
     app = QtWidgets.QApplication(sys.argv)
 
     overlay = Overlay()
     overlay.show()
-
-    audio = AudioSource(args.source, stop_event)
-    transcriber = Transcriber(MODEL_PATH)
-    # transcriber = FasterWhisperTranscriber()
 
     writer = SRTWriter(args.srt) if args.srt else None
 

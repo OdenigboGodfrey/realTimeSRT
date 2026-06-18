@@ -11,6 +11,7 @@ class Worker(QtCore.QThread):
 
         self.stop_event = stop_event
         self.seg_start = 0
+        self.full_text = ""
 
     def run(self):
         try:

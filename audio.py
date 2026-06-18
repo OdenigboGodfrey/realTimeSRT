@@ -24,6 +24,7 @@ class AudioSource:
         self.system = platform.system().lower()
         self.input_channels = 1
         self.stop_event = stop_event
+        self.process = None
 
     # ---------------------------------------
     # CALLBACK

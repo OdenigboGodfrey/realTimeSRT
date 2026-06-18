@@ -1,6 +1,8 @@
 from faster_whisper import WhisperModel
 import numpy as np
 import traceback
+import sys
+sys.stdout.reconfigure(line_buffering=True)
 
 
 class FasterWhisperTranscriber:
@@ -12,21 +14,19 @@ class FasterWhisperTranscriber:
         compute_type="int8"
     ):
         self.init(model_size, device, compute_type)
+        self.full_text = ""
 
 
     def init(self, model_size, device, compute_type):
         try:
             print("Loading faster whisper model...")
-            # whisperModel = WhisperModel(
-            #     'base',
-            #     device='cpu',
-            #     compute_type='int8'
-            # )
+            print("before model init", flush=True)
             whisperModel = WhisperModel(
                 model_size,
                 device=device,
                 compute_type=compute_type
             )
+            print("after model init", flush=True)
             print("Whisper ready")
             self.buffer = b""
             self.model = whisperModel
@@ -41,7 +41,7 @@ class FasterWhisperTranscriber:
         self.buffer += chunk
         # wait until enough audio exists
         # 16000 samples/sec * 2 bytes * 2 seconds
-        if len(self.buffer) < 64000:
+        if len(self.buffer) < 32000:
             return {
                 "partial": ""
             }
@@ -67,6 +67,10 @@ class FasterWhisperTranscriber:
             for segment in segments
         )
 
+        if text:
+            self.full_text += text
+
         return {
-            "partial": text.strip()
+            # "partial": text.strip()
+            "partial": self.full_text
         }
