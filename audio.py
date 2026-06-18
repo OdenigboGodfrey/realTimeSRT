@@ -10,19 +10,20 @@ import re
 from ffmpeg_binary_manager import get_ffmpeg_binary
 
 
-stop_event = threading.Event()
+# stop_event = threading.Event()
 
 FFMPEG = get_ffmpeg_binary("ffmpeg")
 
 
 class AudioSource:
 
-    def __init__(self, source, sample_rate=16000):
+    def __init__(self, source, stop_event, sample_rate=16000):
         self.source = source
         self.sample_rate = sample_rate
         self.q = queue.Queue()
         self.system = platform.system().lower()
         self.input_channels = 1
+        self.stop_event = stop_event
 
     # ---------------------------------------
     # CALLBACK
@@ -62,7 +63,7 @@ class AudioSource:
             channels=1,
             callback=self._callback
         ):
-            while not stop_event.is_set():
+            while not self.stop_event.is_set():
                 try:
                     yield self.q.get(
                         timeout=0.5
@@ -98,7 +99,7 @@ class AudioSource:
             channels=1
         ) as mic:
 
-            while not stop_event.is_set():
+            while not self.stop_event.is_set():
                 data = mic.record(
                     numframes=1024
                 )
@@ -130,14 +131,16 @@ class AudioSource:
             "-"
         ]
 
-        process = subprocess.Popen(
+        self.process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             bufsize=0
         )
 
+        process = self.process
 
-        while not stop_event.is_set():
+
+        while not self.stop_event.is_set():
             data = process.stdout.read(4096)
             if data:
                 yield data
@@ -168,13 +171,15 @@ class AudioSource:
         ]
 
 
-        process = subprocess.Popen(
+        self.process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             bufsize=0
         )
 
-        while not stop_event.is_set():
+        process = self.process
+
+        while not self.stop_event.is_set():
             data = process.stdout.read(4096)
 
             if data:
@@ -207,14 +212,15 @@ class AudioSource:
         ]
 
 
-        process = subprocess.Popen(
+        self.process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             bufsize=0
         )
+        process = self.process
 
 
-        while not stop_event.is_set():
+        while not self.stop_event.is_set():
             data = process.stdout.read(4096)
             if data:
                 yield data
@@ -229,11 +235,39 @@ class AudioSource:
     # TERMINATE
     # ---------------------------------------
     def _terminate(self, process):
+        if process is None:
+            return
+
         try:
-            process.terminate()
-            process.wait(timeout=2)
-        except:
-            process.kill()
+            if process.poll() is None:
+
+                try:
+                    process.stdout.close()
+                except Exception:
+                    pass
+
+                process.terminate()
+
+                try:
+                    process.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
+
+        except Exception as e:
+            print("terminate error:", e)    
+
+    # ---------------------------------------
+    # SHUTDOWN
+    # ---------------------------------------
+    def shutdown(self):
+        print("Audio service shutdown")
+
+        self.stop_event.set()
+
+        if self.process:
+            self._terminate(self.process)
+            self.process = None
 
 
 
