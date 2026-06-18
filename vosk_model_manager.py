@@ -3,8 +3,9 @@ import zipfile
 import requests
 from pathlib import Path
 import platform
+from shared import APP_NAME
 
-APP_NAME = "RealTimeSRT"
+
 
 if platform.system() == "Windows":
     data_dir = Path(os.environ["LOCALAPPDATA"]) / APP_NAME
@@ -17,7 +18,7 @@ VOSK_MODELS = {
     "small": {
         "name": "vosk-model-small-en-us-0.15",
         "download_url": "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip",
-        "description": "Fastest model with lowest memory usage",
+        "description": "Fastest model with lowest memory usage and lowest accuracy (default).",
         "size": 40,
     },
     "medium": {
