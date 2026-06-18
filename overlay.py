@@ -1,5 +1,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QTimer
 import signal
+import time
 
 # 1. Allow Python's default signal handler to catch Ctrl+C (SIGINT)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -34,6 +36,9 @@ class DraggableLabel(QtWidgets.QLabel):
 class Overlay(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+
+        self._latest_text = ""
+        self.max_chars = 200
 
         self.setWindowFlags(
             QtCore.Qt.FramelessWindowHint |
@@ -107,18 +112,34 @@ class Overlay(QtWidgets.QWidget):
     def request_shutdown(self):
         QtWidgets.QApplication.quit()
 
+    # def set_text(self, text):
+    #     print(f"text: {text}")
+    #     now = time.time()
+    #     text = text.strip()
+    #     if not text:
+    #         return
+
+    #     # Keep only the latest part that fits
+    #     max_chars = 200
+
+    #     if len(text) > max_chars:
+    #         text = "..." + text[-max_chars:]
+
+    #     self.label.setText(text)
+
     def set_text(self, text):
-        print(f"text: {text}")
+        self._latest_text = text
 
-        text = text.strip()
+        if not hasattr(self, "_timer_started"):
+            self._timer_started = True
 
-        if not text:
-            return
-
-        # Keep only the latest part that fits
-        max_chars = 200
-
-        if len(text) > max_chars:
-            text = "..." + text[-max_chars:]
-
-        self.label.setText(text)
+            self.timer = QTimer()
+            self.timer.timeout.connect(self.flush_text)
+            self.timer.start(50) 
+    
+    def flush_text(self):
+        if hasattr(self, "_latest_text"):
+            _text = self._latest_text
+            if len(self._latest_text) > self.max_chars:
+                _text = "..." + self._latest_text[-self.max_chars:]
+            self.label.setText(_text)

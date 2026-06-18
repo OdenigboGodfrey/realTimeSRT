@@ -1,9 +1,15 @@
+from pathlib import Path
 from PyQt5 import QtCore
+
+from audio import AudioSource
+from overlay import Overlay
+from transcriber import Transcriber
+from vosk_model_manager import VoskModelManager
 
 class Worker(QtCore.QThread):
     signal = QtCore.pyqtSignal(str)
 
-    def __init__(self, audio, transcriber, stop_event, writer=None):
+    def __init__(self, audio: AudioSource, transcriber: Transcriber, stop_event, overlay: Overlay, writer=None):
         super().__init__()
         self.audio = audio
         self.transcriber = transcriber
@@ -12,8 +18,19 @@ class Worker(QtCore.QThread):
         self.stop_event = stop_event
         self.seg_start = 0
         self.full_text = ""
+        self.overlay = overlay
 
+        
+
+    def init_vosk(self):
+        # todo: ensure model is auto downloaded
+        vosk_model_manager = VoskModelManager("small", self.signal)
+        model_path = vosk_model_manager.ensure_model()
+        vosk_model_path = Path(model_path)
+        self.transcriber.load_model(str(vosk_model_path))
+    
     def run(self):
+        self.init_vosk()
         try:
             for chunk in self.audio.stream():
 

@@ -4,11 +4,12 @@ from vosk import Model, KaldiRecognizer
 
 
 class Transcriber:
-    def __init__(self, model_path, sample_rate=16000):
+
+    def load_model(self, model_path, sample_rate=16000):
         self.model = Model(model_path)
         self.recognizer = KaldiRecognizer(self.model, sample_rate)
         self.start_time = time.time()
-
+    
     def process(self, chunk):
         # ALWAYS feed audio, never skip
         self.recognizer.AcceptWaveform(chunk)

@@ -1,4 +1,11 @@
 todo items:
+- support to auto download the models, so i can support 3 *
+  - use overlay to display progress *
+- set up streamlit or PyQT powered UI where user can select model and click start/stop
+- set up github actions deployment for all OS just like for localSRT
+- deployment files
+ - ffmpeg
+- 
 
 
 
