@@ -17,9 +17,12 @@ from overlay import Overlay
 from srt import SRTWriter
 import threading
 from worker import Worker
+from vosk_model_manager import VoskModelManager
+from pathlib import Path
 
 # MODEL_PATH = "./bin/shared/vosk-model-en-us-0.22-lgraph"
-MODEL_PATH = "./bin/shared/vosk-model-small-en-us-0.15"
+# MODEL_PATH = "./bin/shared/vosk-model-small-en-us-0.15"
+MODEL_PATH = "C:\\Users\\black\\AppData\\Local\\RealTimeSRT\\models\\vosk-model-small-en-us-0.15"
 
 stop_event = threading.Event()
 
@@ -30,18 +33,19 @@ def main():
     parser.add_argument("--srt", help="output srt file")
 
     args = parser.parse_args()
-
-    audio = AudioSource(args.source, stop_event)
-    transcriber = Transcriber(MODEL_PATH)
-
+    
     app = QtWidgets.QApplication(sys.argv)
-
     overlay = Overlay()
     overlay.show()
+    
+    
+    audio = AudioSource(args.source, stop_event)
+    transcriber = Transcriber()
+
 
     writer = SRTWriter(args.srt) if args.srt else None
 
-    worker = Worker(audio, transcriber, stop_event, writer)
+    worker = Worker(audio, transcriber, stop_event, overlay, writer)
     worker.signal.connect(overlay.set_text)
     worker.start()
 
@@ -64,6 +68,5 @@ def main():
     sys.exit(app.exec_())
 
 
-print(__name__)
 if __name__ == "__main__":
     main()
