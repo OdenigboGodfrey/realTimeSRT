@@ -44,7 +44,6 @@ jobs:
             --noconfirm \
             --name realTimeSRT-linux \
             --add-data "bin/linux/ffmpeg:bin" \
-            --add-data "bin/linux/ffprobe:bin" \
             --exclude-module torch \
             --exclude-module torchvision \
             --exclude-module torchaudio \
@@ -87,7 +86,6 @@ jobs:
         run: |
           pyinstaller main.py --onefile `
             --add-data "bin/windows/ffmpeg.exe;bin" `
-            --add-data "bin/windows/ffprobe.exe;bin" `
             --add-data "ui;ui" `
             --name realTimeSRT-windows
 
@@ -118,7 +116,7 @@ jobs:
       - name: Build Intel macOS binary
         run: |
           pyinstaller main.py --onefile \
-            --add-data "bin/macos:bin" \
+            --add-data "bin/macos/ffmpeg:bin" \
             --add-data "ui:ui" \
             --name realTimeSRT-macos-x64
 
@@ -160,7 +158,7 @@ jobs:
       - name: Build Apple Silicon macOS binary
         run: |
           pyinstaller main.py --onefile \
-            --add-data "bin/macos:bin" \
+            --add-data "bin/macos/ffmpeg:bin" \
             --add-data "ui:ui" \
             --name realTimeSRT-macos-arm64
 
