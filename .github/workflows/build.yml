@@ -38,19 +38,15 @@ jobs:
         env:
           CT2_FORCE_CPU: "1"
         run: |
-          pyinstaller main.py \
-            --onefile \
-            --clean \
-            --noconfirm \
-            --name realTimeSRT-linux \
-            --add-data "bin/linux/ffmpeg:bin" \
-            --add-data "bin/linux/ffprobe:bin" \
-            --exclude-module torch \
-            --exclude-module torchvision \
-            --exclude-module torchaudio \
-            --exclude-module nvidia \
-            --exclude-module triton \
-            --exclude-module tensorflow
+          pyinstaller \
+          --onefile \
+          --windowed \
+          --name realTimeSRT-linux \
+          --collect-all PyQt5 \
+          --collect-all vosk \
+          --hidden-import=vosk \
+          --add-data "bin/linux/ffmpeg:bin/linux/ffmpeg" \
+          main.py
       - name: Set executable permission
         run: |
           chmod 755 dist/realTimeSRT-linux
@@ -85,11 +81,15 @@ jobs:
 
       - name: Build Windows exe
         run: |
-          pyinstaller main.py --onefile `
-            --add-data "bin/windows/ffmpeg.exe;bin" `
-            --add-data "bin/windows/ffprobe.exe;bin" `
-            --add-data "ui;ui" `
-            --name realTimeSRT-windows
+          pyinstaller `
+          --onefile `
+          --windowed `
+          --name realTimeSRT-windows `
+          --collect-all PyQt5 `
+          --collect-all vosk `
+          --hidden-import=vosk `
+          --add-data "bin/windows/ffmpeg.exe;bin" `
+          main.py
 
       - name: Upload realTimeSRT Windows to Release
         uses: softprops/action-gh-release@v2
@@ -116,11 +116,16 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build Intel macOS binary
-        run: |
-          pyinstaller main.py --onefile \
-            --add-data "bin/macos:bin" \
-            --add-data "ui:ui" \
-            --name realTimeSRT-macos-x64
+        run: |          
+          pyinstaller \
+            --onefile \
+            --windowed \
+            --name realTimeSRT-macos-x64 \
+            --collect-all PyQt5 \
+            --collect-all vosk \
+            --hidden-import=vosk \
+            --add-data "bin/macos/ffmpeg:bin" \
+            main.py
 
       - name: Verify binary
         run: |
@@ -159,10 +164,15 @@ jobs:
 
       - name: Build Apple Silicon macOS binary
         run: |
-          pyinstaller main.py --onefile \
-            --add-data "bin/macos:bin" \
-            --add-data "ui:ui" \
-            --name realTimeSRT-macos-arm64
+          pyinstaller \
+            --onefile \
+            --windowed \
+            --name realTimeSRT-macos-arm64 \
+            --collect-all PyQt5 \
+            --collect-all vosk \
+            --hidden-import=vosk \
+            --add-data "bin/macos/ffmpeg:bin" \
+            main.py
 
       - name: Verify binary
         run: |
