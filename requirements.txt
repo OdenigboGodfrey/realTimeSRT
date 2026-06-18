@@ -1,0 +1,7 @@
+vosk
+sounddevice
+numpy
+PyQt5
+soundcard
+# faster_whisper
+pyinstaller
