@@ -54,6 +54,15 @@ class Worker(QtCore.QThread):
             print("WORKER CRASHED:")
             print(e)
             traceback.print_exc()
+    
+    def stop(self):
+         # stop worker gracefully (NOT terminate)
+        self.requestInterruption()
+        try:
+            self.audio.shutdown()
+        except Exception:
+            pass
+    
 
 def main():
 
@@ -68,7 +77,7 @@ def main():
     overlay = Overlay()
     overlay.show()
 
-    audio = AudioSource(args.source)
+    audio = AudioSource(args.source, stop_event)
     transcriber = Transcriber(MODEL_PATH)
     # transcriber = FasterWhisperTranscriber()
 
@@ -79,10 +88,9 @@ def main():
     worker.start()
 
     def handle_exit():
-        print("\nStopping...")
+        print("\n Received exit signal...")
         stop_event.set()
-         # stop worker gracefully (NOT terminate)
-        worker.requestInterruption()
+        worker.stop()
         worker.quit()
         worker.wait(2000)
 

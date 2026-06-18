@@ -17,16 +17,16 @@ class FasterWhisperTranscriber:
     def init(self, model_size, device, compute_type):
         try:
             print("Loading faster whisper model...")
-            whisperModel = WhisperModel(
-                'base',
-                device='cpu',
-                compute_type='int8'
-            )
             # whisperModel = WhisperModel(
-            #     model_size,
-            #     device=device,
-            #     compute_type=compute_type
+            #     'base',
+            #     device='cpu',
+            #     compute_type='int8'
             # )
+            whisperModel = WhisperModel(
+                model_size,
+                device=device,
+                compute_type=compute_type
+            )
             print("Whisper ready")
             self.buffer = b""
             self.model = whisperModel
