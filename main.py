@@ -8,61 +8,21 @@ else:
 
 import sys
 import argparse
-from PyQt5 import QtWidgets, QtCore
 
 from audio import AudioSource
 from transcriber import Transcriber
+from PyQt5 import QtWidgets, QtCore
 from transcriber_whisper import FasterWhisperTranscriber
+from utils import extract_text
 from overlay import Overlay
 from srt import SRTWriter
-from utils import extract_text
 import threading
+from worker import Worker
 
 # MODEL_PATH = "/home/back/Documents/src/python/localSRT-RT/bin/shared/vosk-model-en-us-0.22-lgraph"
 MODEL_PATH = "./bin/shared/vosk-model-small-en-us-0.15"
 
 stop_event = threading.Event()
-
-class Worker(QtCore.QThread):
-    signal = QtCore.pyqtSignal(str)
-
-    def __init__(self, audio, transcriber, writer=None):
-        super().__init__()
-        self.audio = audio
-        self.transcriber = transcriber
-        self.writer = writer
-
-        self.seg_start = 0
-
-    def run(self):
-        try:
-            for chunk in self.audio.stream():
-
-                if self.isInterruptionRequested() or stop_event.is_set():
-                    break
-
-                print("audio active")
-
-                partial = self.transcriber.process(chunk)
-
-                txt = partial.get("partial", "")
-
-                if txt:
-                    self.signal.emit(txt)
-        except Exception as e:
-            import traceback
-            print("WORKER CRASHED:")
-            print(e)
-            traceback.print_exc()
-    
-    def stop(self):
-         # stop worker gracefully (NOT terminate)
-        self.requestInterruption()
-        try:
-            self.audio.shutdown()
-        except Exception:
-            pass
-    
 
 def main():
 
@@ -83,7 +43,7 @@ def main():
 
     writer = SRTWriter(args.srt) if args.srt else None
 
-    worker = Worker(audio, transcriber, writer)
+    worker = Worker(audio, transcriber, stop_event, writer)
     worker.signal.connect(overlay.set_text)
     worker.start()
 
