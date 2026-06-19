@@ -16,6 +16,12 @@
     <link rel="canonical" href="https://github.com/OdenigboGodfrey/realTimeSRT">
 
     <style>
+        :root {
+            --warning-bg: #fff3cd;
+            --warning-border: #ffecb5;
+            --warning-text: #664d03;
+        }
+        
         body {
             font-family: Arial, sans-serif;
             max-width: 1000px;
@@ -69,6 +75,16 @@
             margin-top: 80px;
             text-align: center;
             color: gray;
+        }
+
+        .disclaimer { 
+            background: var(--warning-bg); 
+            color: var(--warning-text); 
+            border: 1px solid var(--warning-border); 
+            padding: 18px; 
+            border-radius: 8px; 
+            margin: 30px 0; 
+            font-size: 0.95rem;
         }
     </style>
 
@@ -145,6 +161,10 @@
             Whether you're creating YouTube videos, recording interviews, captioning streams, or improving accessibility, RealTimeSRT helps convert spoken audio into text instantly.
         </p>
     </section>
+
+    <div class="disclaimer">
+        <strong>⚠️ Notice:</strong> Because this application uses AI to generate subtitles, occasional inaccuracies or omissions may occur. Larger models generally provide better accuracy but take longer to process.
+    </div>
 
     <section>
         <h2>Download RealTimeSRT</h2>
