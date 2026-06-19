@@ -178,10 +178,18 @@
         </p>
     </section>
 
+    <section id="installation">
+        <h2>Run from Source</h2>
+        <p>If you prefer to run RealTimeSRT directly using Python, clone the repository and install the required dependencies</p>
+        <p>Then execute your main application script to launch the elegant user interface.</p>
+    </section>
+
     <footer>
-        © 2026 RealTimeSRT • Free Offline Speech-to-Text Subtitle Generator
+        <p>© <span id="year"></span> RealTimeSRT • Free Offline Speech-to-Text Subtitle Generator</p>
+        <p>RealTimeSRT is open-source. Maintained by <a href="https://github.com/OdenigboGodfrey" target="_blank" rel="noopener">OdenigboGodfrey</a>.</p>
     </footer>
-
 </body>
-
 </html>
+<script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+</script>
